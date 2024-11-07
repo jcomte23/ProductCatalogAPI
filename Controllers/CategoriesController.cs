@@ -10,13 +10,11 @@ public class CategoriesController : ControllerBase
 {
     private readonly IMongoCollection<Category> _categoriesCollection;
 
-    // El constructor ahora recibe la colección inyectada
     public CategoriesController(IMongoCollection<Category> categoriesCollection)
     {
         _categoriesCollection = categoriesCollection;
     }
 
-    // GET: api/categories
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Category>>> GetCategories()
     {
@@ -24,7 +22,6 @@ public class CategoriesController : ControllerBase
         return Ok(categories);
     }
 
-        // GET: api/categories/{id}
     [HttpGet("{id}")]
     public async Task<ActionResult<Category>> GetCategory(string id)
     {
@@ -34,5 +31,12 @@ public class CategoriesController : ControllerBase
             return NotFound();
         }
         return Ok(category);
+    }
+
+    [HttpPost]
+    public async Task<ActionResult<Category>> CreateCategory(Category category)
+    {
+        await _categoriesCollection.InsertOneAsync(category);
+        return CreatedAtAction(nameof(GetCategory), new { id = category.Id }, category);
     }
 }
