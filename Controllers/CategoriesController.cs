@@ -34,10 +34,19 @@ public class CategoriesController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<Category>> CreateCategory(Category category)
+    public async Task<IActionResult> CreateCategory([FromBody] Category newCategory)
     {
-        await _categoriesCollection.InsertOneAsync(category);
-        return CreatedAtAction(nameof(GetCategory), new { id = category.Id }, category);
+        var existingCategory = await _categoriesCollection
+            .Find(c => c.Name == newCategory.Name)
+            .FirstOrDefaultAsync();
+
+        if (existingCategory != null)
+        {
+            return Conflict("A category with the same name already exists.");
+        }
+
+        await _categoriesCollection.InsertOneAsync(newCategory);
+        return CreatedAtAction(nameof(GetCategory), new { id = newCategory.Id }, newCategory);
     }
 
     [HttpPut("{id}")]

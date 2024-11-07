@@ -21,7 +21,11 @@ public class Category
     [MaxLength(250, ErrorMessage = "The Description must not exceed 250 characters.")]
     public required string Description { get; set; }
 
-    [BsonElement("created_at")]
+    [BsonElement("createdAt")]
     [BsonRepresentation(BsonType.DateTime)]
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+    [BsonElement("isActive")]
+    [BsonDefaultValue(true)]
+    public bool IsActive { get; set; }
 }
