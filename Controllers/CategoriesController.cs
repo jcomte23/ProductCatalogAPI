@@ -23,4 +23,16 @@ public class CategoriesController : ControllerBase
         var categories = await _categoriesCollection.Find(_ => true).ToListAsync();
         return Ok(categories);
     }
+
+        // GET: api/categories/{id}
+    [HttpGet("{id}")]
+    public async Task<ActionResult<Category>> GetCategory(string id)
+    {
+        var category = await _categoriesCollection.Find(c => c.Id == id).FirstOrDefaultAsync();
+        if (category == null)
+        {
+            return NotFound();
+        }
+        return Ok(category);
+    }
 }
