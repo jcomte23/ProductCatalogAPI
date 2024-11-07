@@ -1,13 +1,27 @@
+using System.ComponentModel.DataAnnotations;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
+
 namespace ProductCatalogAPI.Models;
 public class Category
 {
-    public string? Id { get; set; }  // MongoDB genera un Id único por defecto
-    public string Name { get; set; }
-    public string Description { get; set; }
+    [BsonId]
+    [BsonRepresentation(BsonType.ObjectId)]
+    public string? Id { get; set; }
 
-    public Category(string name, string description)
-    {
-        Name = name;
-        Description = description;
-    }
+    [BsonElement("name")]
+    [Required(ErrorMessage = "The Name field is required.")]
+    [MinLength(3, ErrorMessage = "The Name must be at least 3 characters long.")]
+    [MaxLength(50, ErrorMessage = "The Name must not exceed 50 characters.")]
+    public required string Name { get; set; }
+
+    [BsonElement("description")]
+    [Required(ErrorMessage = "The Description field is required.")]
+    [MinLength(10, ErrorMessage = "The Description must be at least 10 characters long.")]
+    [MaxLength(250, ErrorMessage = "The Description must not exceed 250 characters.")]
+    public required string Description { get; set; }
+
+    [BsonElement("created_at")]
+    [BsonRepresentation(BsonType.DateTime)]
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }
