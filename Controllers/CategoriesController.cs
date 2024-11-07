@@ -50,14 +50,30 @@ public class CategoriesController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateCategory(string id, Category category)
+    public async Task<IActionResult> UpdateCategory(string id, [FromBody] Category updatedCategory)
     {
-        var result = await _categoriesCollection.ReplaceOneAsync(c => c.Id == id, category);
-        if (result.MatchedCount == 0)
+        var existingCategory = await _categoriesCollection
+            .Find(c => c.Id == id)
+            .FirstOrDefaultAsync();
+
+        if (existingCategory == null)
         {
-            return NotFound();
+            return NotFound("Category not found.");
         }
-        return NoContent();
+
+        // Actualizar el campo updatedAt
+        updatedCategory.UpdatedAt = DateTime.UtcNow;
+
+        // Realizar la actualización
+        var updateResult = await _categoriesCollection.ReplaceOneAsync(
+            c => c.Id == id, updatedCategory);
+
+        if (updateResult.IsAcknowledged && updateResult.ModifiedCount > 0)
+        {
+            return NoContent();
+        }
+
+        return BadRequest("Update failed.");
     }
 
 
