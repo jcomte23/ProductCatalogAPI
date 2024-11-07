@@ -39,4 +39,29 @@ public class CategoriesController : ControllerBase
         await _categoriesCollection.InsertOneAsync(category);
         return CreatedAtAction(nameof(GetCategory), new { id = category.Id }, category);
     }
+
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateCategory(string id, Category category)
+    {
+        var result = await _categoriesCollection.ReplaceOneAsync(c => c.Id == id, category);
+        if (result.MatchedCount == 0)
+        {
+            return NotFound();
+        }
+        return NoContent();
+    }
+
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteCategory(string id)
+    {
+        var result = await _categoriesCollection.DeleteOneAsync(c => c.Id == id);
+        if (result.DeletedCount == 0)
+        {
+            return NotFound();
+        }
+        return NoContent();
+    }
+
+
 }
