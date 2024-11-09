@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver;
+using ProductCatalogAPI.DTOs.Requests;
 using ProductCatalogAPI.Models;
 
 namespace ProductCatalogAPI.Controllers;
@@ -34,10 +35,10 @@ public class CategoriesController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateCategory([FromBody] Category newCategory)
+    public async Task<IActionResult> CreateCategory([FromBody] CategoryCreateDto request)
     {
         var existingCategory = await _categoriesCollection
-            .Find(c => c.Name == newCategory.Name)
+            .Find(c => c.Name == request.Name)
             .FirstOrDefaultAsync();
 
         if (existingCategory != null)
@@ -45,8 +46,10 @@ public class CategoriesController : ControllerBase
             return Conflict("A category with the same name already exists.");
         }
 
+        var newCategory = new Category(request.Name,request.Description);
+
         await _categoriesCollection.InsertOneAsync(newCategory);
-        return CreatedAtAction(nameof(GetCategory), new { id = newCategory.Id }, newCategory);
+        return Ok(newCategory);
     }
 
     [HttpPut("{id}")]
