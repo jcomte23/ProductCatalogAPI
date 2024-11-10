@@ -20,17 +20,25 @@ public class CategoriesController : ControllerBase
     public async Task<ActionResult<IEnumerable<Category>>> GetCategories()
     {
         var categories = await _categoriesCollection.Find(_ => true).ToListAsync();
+
+        if (categories.Count == 0)
+        {
+            return NoContent();
+        }
+
         return Ok(categories);
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<Category>> GetCategory(string id)
+    public async Task<ActionResult<Category>> GetCategory([FromRoute] string id)
     {
         var category = await _categoriesCollection.Find(c => c.Id == id).FirstOrDefaultAsync();
+
         if (category == null)
         {
             return NotFound();
         }
+
         return Ok(category);
     }
 
@@ -46,14 +54,14 @@ public class CategoriesController : ControllerBase
             return Conflict("A category with the same name already exists.");
         }
 
-        var newCategory = new Category(request.Name,request.Description);
+        var newCategory = new Category(request.Name, request.Description);
 
         await _categoriesCollection.InsertOneAsync(newCategory);
         return Ok(newCategory);
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateCategory(string id, [FromBody] Category updatedCategory)
+    public async Task<IActionResult> UpdateCategory([FromRoute] string id, [FromBody] CategoryUpdateDto request)
     {
         var existingCategory = await _categoriesCollection
             .Find(c => c.Id == id)
@@ -64,24 +72,23 @@ public class CategoriesController : ControllerBase
             return NotFound("Category not found.");
         }
 
-        // Actualizar el campo updatedAt
-        updatedCategory.UpdatedAt = DateTime.UtcNow;
+        existingCategory.Name = request.Name;
+        existingCategory.Description = request.Description;
+        existingCategory.IsActive = request.IsActive;
+        existingCategory.UpdatedAt = DateTime.UtcNow; 
 
-        // Realizar la actualización
+
         var updateResult = await _categoriesCollection.ReplaceOneAsync(
-            c => c.Id == id, updatedCategory);
+            c => c.Id == id, 
+            existingCategory 
+        );
 
-        if (updateResult.IsAcknowledged && updateResult.ModifiedCount > 0)
-        {
-            return NoContent();
-        }
-
-        return BadRequest("Update failed.");
+        return Ok(existingCategory);
     }
 
 
     [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteCategory(string id)
+    public async Task<IActionResult> DeleteCategory([FromRoute] string id)
     {
         var result = await _categoriesCollection.DeleteOneAsync(c => c.Id == id);
         if (result.DeletedCount == 0)

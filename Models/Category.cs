@@ -2,44 +2,27 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace ProductCatalogAPI.Models;
-public class Category
+public class Category(string name, string description)
 {
     [BsonId]
     [BsonRepresentation(BsonType.ObjectId)]
     public string? Id { get; set; }
 
     [BsonElement("name")]
-    public string Name { get; set; }
+    public string Name { get; set; } = name;
 
     [BsonElement("description")]
-    public string Description { get; set; } 
+    public string Description { get; set; } = description;
 
     [BsonElement("isActive")]
     [BsonDefaultValue(true)]
-    public bool IsActive { get; set; } 
+    public bool IsActive { get; set; } = true;
 
     [BsonElement("createdAt")]
     [BsonRepresentation(BsonType.DateTime)]
-    public DateTime CreatedAt { get; set; } 
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     [BsonElement("updatedAt")]
     [BsonRepresentation(BsonType.DateTime)]
-    public DateTime UpdatedAt { get; set; }
-
-    public Category(string name, string description)
-    {
-        Name = name;
-        Description = description;
-        IsActive = true;
-        CreatedAt = DateTime.UtcNow;
-        UpdatedAt = DateTime.UtcNow;
-    }
-
-    public Category(string name, string description, bool isActive, DateTime updatedAt)
-    {
-        Name = name;
-        Description = description;
-        IsActive = isActive;
-        UpdatedAt = updatedAt;
-    }
+    public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 }

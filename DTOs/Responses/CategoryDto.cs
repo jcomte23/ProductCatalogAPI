@@ -7,4 +7,3 @@ public class CategoryDto(string id, string name, string descripcion)
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
 }
-
